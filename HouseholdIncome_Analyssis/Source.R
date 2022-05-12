@@ -19,8 +19,7 @@ library(factoextra)
 library(ClusterR)
 library(cluster)
 
-##################### Review of Big Data Analytic Methods #####################
-
+cat("\n\n##################### Review of Big Data Analytic Methods #####################\n\n")
 
 ##### 1.1 print zeta description
 zeta_dataframe <- read.csv("Datasets/zeta.csv")
@@ -67,10 +66,10 @@ print(summary(zeta_table$income))
 # 
 # meanage_table <- as.data.table(zeta_dataframe$meanage)
 # colnames(meanage_table ) = c("meanage")
- 
+
 # meaneducation_table <- as.data.table(zeta_dataframe$meaneducation)
 # colnames(meaneducation_table) = c("meaneducation")
- 
+
 # meanemployment_table <- as.data.table(zeta_dataframe$meanemployment)
 # colnames(meanemployment_table) = c("meanemployment")
 
@@ -85,7 +84,7 @@ print(summary(zeta_table$income))
 #           nrow = 1)
 #
 # ggsave("Output Plots/scatterplot.png")
- 
+
 
 ##### 2.5  create a subset of the data (removing outlires)
 cat("\nmean of income column before removing outlires -->",mean(zeta_table$income))
@@ -112,7 +111,7 @@ cat("\nmean of income column after removing outlires -->",mean(new_zeta_table$in
 #
 # ggsave("Output Plots/original_boxplot.png")
 
- 
+
 ##### 3.2
 # ggarrange( ggplot(data = melt(income_table), aes(x=variable, y=log(value))) +
 #           geom_boxplot(colour="blue"),
@@ -126,14 +125,12 @@ cat("\nmean of income column after removing outlires -->",mean(new_zeta_table$in
 #           top = text_grob("log of the data"))
 #
 # ggsave("Output Plots/log_boxplot.png")
- 
 
 
 
+cat("\n\n#################### Advanced Analytics/Methods (K-means) #####################\n\n")
 
 
-
-#################### Advanced Analytics/Methods (K-means) #####################
 
 ##### ADV.1 Access the data and change the columns names
 income_state_dataframe <- read.csv("Datasets/income_elec_state.csv")
@@ -157,22 +154,102 @@ income_state_table$state <- as.numeric(as.factor(income_state_table$state))
 set.seed(120)
 km <- kmeans(income_state_table, centers = 10, iter.max = 60, nstart = 30)
 cat("\nThe result of Kmeans Algorithm:\n")
-km
+print(km)
 
-# plot the kmeans cluster:
+# plot the k-means cluster:
 fviz_cluster(km, income_state_table, 
              geom = "point",
              ellipse.type = "convex",
              ggtheme = theme_bw()
-             )
+)
 ggsave("Output Plots/clusters_plot.png")
-
 
 
 ##### ADV.3 Determine a reasonable value of k
 fviz_nbclust(income_state_table, kmeans, method = "wss")
-ggsave("Output Plots/wssPlot.png")
-fviz_nbclust(income_state_table, kmeans, method = "silhouette")
-ggsave("Output Plots/silhouettePlot.png")
-cat("\nAccording to within sum of squares(wss) and silhouette plots,\nThe optimal number of clusters: 2")
+ggsave("Output Plots/wss_plot.png")
+cat("\nAccording to within sum of squares(wss) plot,\nThe optimal number of clusters: 2")
+
+
+##### ADV.4 Cluster the data with log10 scale
+income_state_table$`mean household income`  <- scale(log10(income_state_table$`mean household income`))
+income_state_table$`mean electricity usage` <- scale(log10(income_state_table$`mean electricity usage`))
+
+set.seed(120)
+km <- kmeans(income_state_table, centers = 10, iter.max = 60, nstart = 30)
+cat("\nThe result of Kmeans Algorithm After Convertion columns to log10 scale:\n")
+print(km)
+
+# plot the k-means cluster After Update log10 scale on columns:
+fviz_cluster(km, income_state_table, 
+             geom = "point",
+             ellipse.type = "convex",
+             ggtheme = theme_bw()
+)
+ggsave("Output Plots/clusters_log10_plot.png")
+
+
+##### ADV.5 re-evaluating the choice of k, After Update log10 scale on columns
+fviz_nbclust(income_state_table, kmeans, method = "wss")
+ggsave("Output Plots/wss_log10_plot.png")
+cat("\nAfter re-evaluating the choice of k, Still the optimal number of clusters: 2\n")
+
+
+##### ADV.6 Detecting outlier
+# by Calculation
+centers <- km$centers[km$cluster,]
+distances <- sqrt(rowSums((income_state_table - centers)^2))
+outliers <- order(distances, decreasing=T)[1:5]
+cat("\nThe top 5 rows that has outliers: ", outliers, "\n")
+
+# by Graphically
+fviz_cluster(kmeans(income_state_table, centers = 10, iter.max = 60, nstart = 30), data = income_state_table)
+ggsave("Output Plots/clusters_outliers_plot.png")
+
+# remove rows that has outliers
+income_state_table <- income_state_table[-c(32), ]
+income_state_table <- income_state_table[-c(20), ]
+income_state_table <- income_state_table[-c(41), ]
+income_state_table <- income_state_table[-c(7), ]
+income_state_table <- income_state_table[-c(17), ]
+
+
+set.seed(120)
+km <- kmeans(income_state_table, centers = 10, iter.max = 60, nstart = 30)
+cat("\nThe result of Kmeans Algorithm After Delting The outliers:\n")
+print(km)
+
+fviz_cluster(km, income_state_table, 
+             geom = "point",
+             ellipse.type = "convex",
+             ggtheme = theme_bw()
+)
+ggsave("Output Plots/clusters_without_outlier_plot.png")
+
+
+# re-evaluate k again
+fviz_nbclust(income_state_table, kmeans, method = "wss")
+ggsave("Output Plots/wss_without_outlier_plot.png")
+cat("\nAfter re-evaluating the choice of k, Still the optimal number of clusters: 2\n")
+
+
+
+##### Finally Cluster the data with the best k=2
+set.seed(120)
+km <- kmeans(income_state_table, centers = 2, iter.max = 60, nstart = 30)
+cat("\nThe best result of Kmeans Algorithm with best k=2:\n")
+print(km)
+
+fviz_cluster(km, income_state_table, 
+             geom = "point",
+             ellipse.type = "convex",
+             ggtheme = theme_bw()
+)
+ggsave("Output Plots/clusters_best_k_plot.png")
+
+
+
+cat("\n\n######################## Finally The End Point #########################")
+
+
 
