@@ -4,6 +4,9 @@
 #install.packages("data.table")
 #install.packages("Hmisc")
 #install.packages("ggpubr")
+#install.packages("factoextra")
+#install.packages("ClusterR")
+#install.packages("cluster")
 
 #calling needed libraries
 library(dplyr)
@@ -12,7 +15,9 @@ library(Hmisc)
 library(ggplot2)
 library(gridExtra)
 library(ggpubr)
-
+library(factoextra)
+library(ClusterR)
+library(cluster)
 
 ##################### Review of Big Data Analytic Methods #####################
 
@@ -130,23 +135,44 @@ cat("\nmean of income column after removing outlires -->",mean(new_zeta_table$in
 
 #################### Advanced Analytics/Methods (K-means) #####################
 
-
-##### ADV.1 change columns names
+##### ADV.1 Access the data and change the columns names
 income_state_dataframe <- read.csv("Datasets/income_elec_state.csv")
-income_state_dataframedd <- income_state_dataframe
+income_state_dataframe_copy <- income_state_dataframe
 
-colnames(income_state_dataframedd)[which(names(income_state_dataframedd) == "X")] <- "state"
-colnames(income_state_dataframedd)[which(names(income_state_dataframedd) == "income")] <- "mean household income"
-colnames(income_state_dataframedd)[which(names(income_state_dataframedd) == "elec")] <- "mean electricity usage"
+colnames(income_state_dataframe_copy)[which(names(income_state_dataframe_copy) == "X")] <- "state"
+colnames(income_state_dataframe_copy)[which(names(income_state_dataframe_copy) == "income")] <- "mean household income"
+colnames(income_state_dataframe_copy)[which(names(income_state_dataframe_copy) == "elec")] <- "mean electricity usage"
 
-income_state_table <- as.data.table(income_state_dataframedd, TRUE)
-rm(income_state_dataframedd)
+income_state_table <- as.data.table(income_state_dataframe_copy, TRUE)
+rm(income_state_dataframe_copy)
+#delete the first column from the table
+income_state_table <- income_state_table[, 2:4]
 
 
 ##### ADV.2 Cluster the data using k-means function
+# transform state column to numeric data
+income_state_table$state <- as.numeric(as.factor(income_state_table$state))
+
+# start the k-means algorithm
+set.seed(120)
+km <- kmeans(income_state_table, centers = 10, iter.max = 60, nstart = 30)
+cat("\nThe result of Kmeans Algorithm:\n")
+km
+
+# plot the kmeans cluster:
+fviz_cluster(km, income_state_table, 
+             geom = "point",
+             ellipse.type = "convex",
+             ggtheme = theme_bw()
+             )
+ggsave("Output Plots/clusters_plot.png")
 
 
 
-
-
+##### ADV.3 Determine a reasonable value of k
+fviz_nbclust(income_state_table, kmeans, method = "wss")
+ggsave("Output Plots/wssPlot.png")
+fviz_nbclust(income_state_table, kmeans, method = "silhouette")
+ggsave("Output Plots/silhouettePlot.png")
+cat("\nAccording to within sum of squares(wss) and silhouette plots,\nThe optimal number of clusters: 2")
 
