@@ -61,28 +61,28 @@ cat("\nsummary of income column\n")
 print(summary(zeta_table$income))
 
 ##### 2.4 Plot a scatter plot of the data.
-# income_table <- as.data.table(zeta_dataframe$income)
-# colnames(income_table) = c("income")
-# 
-# meanage_table <- as.data.table(zeta_dataframe$meanage)
-# colnames(meanage_table ) = c("meanage")
+income_table <- as.data.table(zeta_dataframe$income)
+colnames(income_table) = c("income")
+ 
+meanage_table <- as.data.table(zeta_dataframe$meanage)
+colnames(meanage_table ) = c("meanage")
 
-# meaneducation_table <- as.data.table(zeta_dataframe$meaneducation)
-# colnames(meaneducation_table) = c("meaneducation")
+meaneducation_table <- as.data.table(zeta_dataframe$meaneducation)
+colnames(meaneducation_table) = c("meaneducation")
 
-# meanemployment_table <- as.data.table(zeta_dataframe$meanemployment)
-# colnames(meanemployment_table) = c("meanemployment")
+meanemployment_table <- as.data.table(zeta_dataframe$meanemployment)
+colnames(meanemployment_table) = c("meanemployment")
 
 # ggarrange(ggplot(data = melt(income_table), aes(x=variable, y=value)) +
-#           geom_point(colour="blue"),
-#           ggplot(data = melt(meanage_table), aes(x=variable, y=value)) +
-#           geom_point(colour="red") ,
-#           ggplot(data = melt(meaneducation_table), aes(x=variable, y=value)) +
-#           geom_point(colour="green"),
-#           ggplot(data = melt(meanemployment_table), aes(x=variable, y=value)) +
-#           geom_point(colour="black") ,
-#           nrow = 1)
-#
+#          geom_point(colour="blue"),
+#          ggplot(data = melt(meanage_table), aes(x=variable, y=value)) +
+#          geom_point(colour="red") ,
+#          ggplot(data = melt(meaneducation_table), aes(x=variable, y=value)) +
+#          geom_point(colour="green"),
+#          ggplot(data = melt(meanemployment_table), aes(x=variable, y=value)) +
+#          geom_point(colour="black") ,
+#          nrow = 1)
+
 # ggsave("Output Plots/scatterplot.png")
 
 
@@ -162,12 +162,12 @@ fviz_cluster(km, income_state_table,
              ellipse.type = "convex",
              ggtheme = theme_bw()
 )
-ggsave("Output Plots/clusters_plot.png")
+# ggsave("Output Plots/clusters_plot.png")
 
 
 ##### ADV.3 Determine a reasonable value of k
 fviz_nbclust(income_state_table, kmeans, method = "wss")
-ggsave("Output Plots/wss_plot.png")
+# ggsave("Output Plots/wss_plot.png")
 cat("\nAccording to within sum of squares(wss) plot,\nThe optimal number of clusters: 2")
 
 
@@ -186,12 +186,12 @@ fviz_cluster(km, income_state_table,
              ellipse.type = "convex",
              ggtheme = theme_bw()
 )
-ggsave("Output Plots/clusters_log10_plot.png")
+# ggsave("Output Plots/clusters_log10_plot.png")
 
 
 ##### ADV.5 re-evaluating the choice of k, After Update log10 scale on columns
 fviz_nbclust(income_state_table, kmeans, method = "wss")
-ggsave("Output Plots/wss_log10_plot.png")
+# ggsave("Output Plots/wss_log10_plot.png")
 cat("\nAfter re-evaluating the choice of k, Still the optimal number of clusters: 2\n")
 
 
@@ -204,7 +204,7 @@ cat("\nThe top 5 rows that has outliers: ", outliers, "\n")
 
 # by Graphically
 fviz_cluster(kmeans(income_state_table, centers = 10, iter.max = 60, nstart = 30), data = income_state_table)
-ggsave("Output Plots/clusters_outliers_plot.png")
+# ggsave("Output Plots/clusters_outliers_plot.png")
 
 # remove rows that has outliers
 income_state_table <- income_state_table[-c(32), ]
@@ -224,12 +224,12 @@ fviz_cluster(km, income_state_table,
              ellipse.type = "convex",
              ggtheme = theme_bw()
 )
-ggsave("Output Plots/clusters_without_outlier_plot.png")
+# ggsave("Output Plots/clusters_without_outlier_plot.png")
 
 
 # re-evaluate k again
 fviz_nbclust(income_state_table, kmeans, method = "wss")
-ggsave("Output Plots/wss_without_outlier_plot.png")
+# ggsave("Output Plots/wss_without_outlier_plot.png")
 cat("\nAfter re-evaluating the choice of k, Still the optimal number of clusters: 2\n")
 
 
@@ -245,11 +245,10 @@ fviz_cluster(km, income_state_table,
              ellipse.type = "convex",
              ggtheme = theme_bw()
 )
-ggsave("Output Plots/clusters_best_k_plot.png")
+# ggsave("Output Plots/clusters_best_k_plot.png")
 
 
 
 cat("\n\n######################## Finally The End Point #########################")
-
 
 
