@@ -33,7 +33,7 @@
 - **Scaled box plot**<BR>
 ![log_boxplot](https://user-images.githubusercontent.com/52586356/168449721-127858aa-b4fc-46fa-bbac-2a4794edbbcf.png)
   
-
+ 
 </p>
 </details>
 
